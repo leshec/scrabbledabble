@@ -1,66 +1,36 @@
-#[allow(dead_code)]
-#[derive(Debug, Clone)]
-struct Node {
-    prev: char,
-    value: char,
-    children: Vec<Node>,
-}
-
-impl Node {
-    fn add_node(&mut self, parent: char, label: char) {
-        let _ = &self.children.push(Node {
-            prev: parent,
-            value: label,
-            children: Vec::new(),
-        });
-    }
-}
-
 fn main() {
-    //user data will be 7 chars
-    //get user input and check it
-    //store in a vec<char>
+    let set = String::from("abc");
+    let sets: Vec<char> = set.chars().collect();
 
-    let user_input = vec!['a', 'b', 'c'];
-
-    let mut root = Node {
-        prev: '0',
-        value: '1',
-        children: Vec::new(),
-    };
-
-    // println!("view into tree****************************************");
-    //    for node in root.children.iter_mut() {
-    //       assert_ne!(node.prev, node.value);
-    //     if node.prev == '1' && node.value == 'a' {
-    //         node.add_node(node.value, 'x');
-    //         node.add_node(node.value, 'y');
-    //         node.add_node(node.value, 'x');
-    //         //check duplication with set at some point
-    //      println!("{:?}", node);
-    // }
-    // }
-    //
-    println!("insertion*****************************************");
-    //develop fucntion or some recursion to go down the tree
-    for letter in user_input.clone() {
-        if root.children.is_empty() || root.value == '1' {
-            root.add_node(root.value, letter);
-        }
+    let mut binary_list: Vec<String> = Vec::new();
+    for n in 0..8 {
+        binary_list.push(format!("{n:03b}"));
     }
 
-    for node in root.children.iter_mut() {
-        for letter in user_input.clone() {
-            assert_ne!(node.prev, node.value);
-            if node.value != letter {
-                node.add_node(node.value, letter);
+    let mut binary_vec: Vec<Vec<char>> = Vec::new();
+
+    for word in binary_list.iter() {
+        binary_vec.push(word.chars().collect());
+    }
+
+    println!("{:?}", &binary_vec);
+    assert_eq!(sets, ['a', 'b', 'c']);
+    println!("{:?}", &set);
+
+    let mut subsets: Vec<String> = Vec::new();
+
+    let mut buff = String::new();
+    for item in binary_vec.iter() {
+        for (idx, value) in item.iter().enumerate() {
+            if *value == '1' {
+                buff.push(sets[idx]);
             }
         }
+        if !buff.is_empty() {
+            subsets.push(buff.clone());
+        }
+        buff.clear();
     }
-    println!("view longform*****************************************");
-    println!("the tree is {:#?}", &root);
-    //impl a pretter print
-    println!("*****************************************");
-}
 
-//save this for now
+    println!("{:?}", subsets);
+}
