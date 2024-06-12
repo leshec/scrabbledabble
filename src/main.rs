@@ -1,36 +1,27 @@
+use rand::prelude::*;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-
 //get rid of comments
 //bug: only finding one occurence of combination, probably
 //due to the hashmap
 
+fn random_ascii() -> String {
+    let mut bag = String::new();
+    const ASCIISET: &[u8] =
+        b"aaaaaaaaaiiiiiiiiioooooooonnnnnnrrrrrrttttttllllssssuuuuddddgggbbccmmppffhhvvwwyykjxqz";
+    for _ in 1..8 {
+        let idx = rand::thread_rng().gen_range(0..ASCIISET.len());
+        bag.push(ASCIISET[idx] as char)
+    }
+    println!("The bag is {}", bag);
+    //simply return bag here or placeholder "decimal".to_string()
+    //return "decimal".to_string();
+    return bag;
+}
+
 fn main() {
-    fn read_file(filename: &str) -> Result<Vec<String>, std::io::Error> {
-        let file = File::open(filename)?;
-        let reader = BufReader::new(file);
-        reader.lines().collect()
-    }
-
-    let filename = "data";
-    let lines = read_file(filename).unwrap();
-    //    println!("{:?}", lines);
-
-    //https://doc.rust-lang.org/std/collections/struct.HashMap.html
-    let mut dictionary: HashMap<String, String> = HashMap::new();
-
-    for line in lines.iter() {
-        let mut word: Vec<char> = line.trim_end().chars().collect();
-        word.sort();
-        let alpabeticised_word: String = word.into_iter().collect();
-        dictionary.insert(line.to_string(), alpabeticised_word);
-    }
-
-    //println!("{:?}", dictionary);
-    //autogenerate this later...
-    //add scores etc and weighted distribution
-    let set = String::from("decimal");
+    let set = random_ascii();
     let sets: Vec<char> = set.chars().collect();
 
     //is there a way just to directly work
@@ -69,13 +60,29 @@ fn main() {
     }
     subsets.sort();
 
-    let mut results_list: Vec<String> = Vec::new();
+    fn read_file(filename: &str) -> Result<Vec<String>, std::io::Error> {
+        let file = File::open(filename)?;
+        let reader = BufReader::new(file);
+        reader.lines().collect()
+    }
 
-    //println!("{:?}", subsets);
-    // Look up the values associated with some keys.
-    //probably need tomake this a function and call more than once
-    //as there is a bug missing anagrams
+    let filename = "data";
+    let lines = read_file(filename).unwrap();
+    //    println!("{:?}", lines);
+
+    //https://doc.rust-lang.org/std/collections/struct.HashMap.html
+    let mut dictionary: HashMap<String, String> = HashMap::new();
+
+    for line in lines.iter() {
+        let mut word: Vec<char> = line.trim_end().chars().collect();
+        word.sort();
+        let alpabeticised_word: String = word.into_iter().collect();
+        dictionary.insert(line.trim().to_string(), alpabeticised_word);
+    }
+
+    //there is a bug missing anagrams
     //the algo will find decimal but not claimed for example
+    let mut results_list: Vec<String> = Vec::new();
     for key in subsets.iter() {
         match dictionary.get(key) {
             Some(value) => {
@@ -86,22 +93,11 @@ fn main() {
         }
     }
 
+    for result in results_list.iter() {
+        println!("{}", score_word(result.to_string()));
+    }
+
     println!("Results list {:?}", results_list);
-
-    //Ok so I can get the word i want from dictinary the key above.
-    //stick keys in a list, score them and take the highest score
-    //in this case simply longest
-
-    //add some asserts
-    //need to generate tiles from weighted distro e.g:
-    //     SEE NOTES below...
-    //     - 1 point: E, A, I, O, N, R, T, L, S, U
-    // - 2 points: D, G
-    // - 3 points: B, C, M, P
-    // - 4 points: F, H, V, W, Y
-    // - 5 points: K
-    // - 8 points: J, X
-    // - 10 points: Q, Z
 
     fn score_word(word: String) -> usize {
         //this repeats an earlier process
@@ -111,39 +107,19 @@ fn main() {
         for letter in word.chars() {
             letters.push(letter);
         }
-        
-        for letter in letters.iter(){
+
+        for letter in letters.iter() {
             match letter {
-                
-                E, A, I, O, N, R, T, L, S, U => score +=1,
-        D, G => score +=2,
-        B, C, M, P =>score +=3,
-        F, H, V, W, Y => score +=4,
-        K => score +=5,
-        J, X => score +=8,
-        Q, Z =>score +=10,
+                'e' | 'a' | 'i' | 'o' | 'n' | 'r' | 't' | 'l' | 's' | 'u' => score += 1,
+                'd' | 'g' => score += 2,
+                'b' | 'c' | 'm' | 'p' => score += 3,
+                'f' | 'h' | 'v' | 'w' | 'y' => score += 4,
+                'k' => score += 5,
+                'j' | 'x' => score += 8,
+                'q' | 'z' => score += 10,
+                _ => println!("missed a case"),
             }
         }
-        //return letters
-        return 1;
+        return score;
     }
-
-    //
-    //     - 12 tiles: E
-    // - 9 tiles: A,I
-    // - 8 tiles: O
-    // - 6 tiles: N,R,T
-    // - 4 tiles: L,S,U,D
-    // - 3 tiles: G
-    // - 2 tiles: B,C,M,P,F,H,V,W,Y
-    // - 1 tiles: K,J,X,Q,Z
-    //
-    //     #[cfg(feature = "std")]
-    // pub fn random_ascii() -> char {
-    //     const ASCIISET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
-    //                             abcdefghijklmnopqrstuvwxyz\
-    //                             0123456789)(*&^%$#@!~. ";
-    //     let idx = rand::thread_rng().gen_range(0..ASCIISET.len());
-    //     ASCIISET[idx] as char
-    // }
 }
