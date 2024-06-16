@@ -2,10 +2,11 @@ use rand::prelude::*;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-//get rid of comments
-//bug: only finding one occurence of combination, probably
-//due to the hashmap
 
+//bug: only finding one occurence of combination e.g. decimal and claimed.
+//i want both.
+
+//Create random bag seven tiles
 fn random_ascii() -> String {
     let mut bag = String::new();
     const ASCIISET: &[u8] =
@@ -22,15 +23,13 @@ fn random_ascii() -> String {
 
 fn main() {
     let set = random_ascii();
+    println!("The starting bag is {}", set);
     let sets: Vec<char> = set.chars().collect();
 
-    //is there a way just to directly work
-    //with binary or bools without using strings?
+    //how can i work more directly with binary?
     let mut binary_bytes: Vec<String> = Vec::new();
     for n in 0..2_u32.pow(7) {
-        //the value 7 here for 7 letters
-        //how to insert a set_size variable into the formatter
-        //else can I just compose a string to replace the {}
+        //could generalise the input 7
         binary_bytes.push(format!("{n:07b}"));
     }
 
@@ -46,7 +45,7 @@ fn main() {
 
     let mut subsets: Vec<String> = Vec::new();
 
-    let mut buff = String::new();
+    let mut buff = Vec::new();
     for byte in binary_bits.iter() {
         for (idx, bit) in byte.iter().enumerate() {
             if *bit == '1' {
@@ -54,11 +53,17 @@ fn main() {
             }
         }
         if !buff.is_empty() {
-            subsets.push(buff.clone());
+            //&& !subsets.contains(&buff) {
+            buff.sort_by(|a, b| a.cmp(b));
+            let buff: &String = &buff.clone().into_iter().collect();
+            subsets.push(buff.to_string());
         }
         buff.clear();
     }
-    subsets.sort();
+
+    // subsets.sort_by(|a, b| a.cmp(b));
+    // println!("*****************");
+    // println!("{:?}", &subsets);
 
     fn read_file(filename: &str) -> Result<Vec<String>, std::io::Error> {
         let file = File::open(filename)?;
@@ -80,24 +85,16 @@ fn main() {
         dictionary.insert(line.trim().to_string(), alpabeticised_word);
     }
 
-    //there is a bug missing anagrams
-    //the algo will find decimal but not claimed for example
     let mut results_list: Vec<String> = Vec::new();
-    for key in subsets.iter() {
-        match dictionary.get(key) {
-            Some(value) => {
-                println!("{key}: {value}");
-                results_list.push(key.clone());
-            }
-            None => continue,
+    for (key, value) in dictionary {
+        if subsets.contains(&value) {
+            results_list.push(key.clone());
         }
     }
 
     for result in results_list.iter() {
-        println!("{}", score_word(result.to_string()));
+        println!("The word {}:{}", result, score_word(result.to_string()));
     }
-
-    println!("Results list {:?}", results_list);
 
     fn score_word(word: String) -> usize {
         //this repeats an earlier process
