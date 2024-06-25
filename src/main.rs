@@ -3,66 +3,13 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-//Tidy up a lot.
-//put functions, variables etc in sensible locations
-//some variables should be structs e.g. result word and score are coupled
-//use appropriate functions
-//simply the subsets building, too mnay allocations/types
-//best way to read file and ingest/process?
-//add tests
-
-fn read_file(filename: &str) -> Result<Vec<String>, std::io::Error> {
-    let file = File::open(filename)?;
-    let reader = BufReader::new(file);
-    reader.lines().collect()
-}
-
-fn random_ascii() -> String {
-    let mut bag = String::new();
-    const ASCIISET: &[u8] =
-        b"aaaaaaaaaiiiiiiiiioooooooonnnnnnrrrrrrttttttllllssssuuuuddddgggbbccmmppffhhvvwwyykjxqz";
-    for _ in 1..8 {
-        let idx = rand::thread_rng().gen_range(0..ASCIISET.len());
-        bag.push(ASCIISET[idx] as char)
-    }
-    println!("The bag is {}", bag);
-    //simply return bag here or placeholder "decimal".to_string()
-    //return "decimal".to_string();
-    return bag;
-}
-
-fn score_word(word: String) -> usize {
-    //this repeats an earlier process
-    let mut letters: Vec<char> = Vec::new();
-    let mut score: usize = 0;
-
-    for letter in word.chars() {
-        letters.push(letter);
-    }
-
-    for letter in letters.iter() {
-        match letter {
-            'e' | 'a' | 'i' | 'o' | 'n' | 'r' | 't' | 'l' | 's' | 'u' => score += 1,
-            'd' | 'g' => score += 2,
-            'b' | 'c' | 'm' | 'p' => score += 3,
-            'f' | 'h' | 'v' | 'w' | 'y' => score += 4,
-            'k' => score += 5,
-            'j' | 'x' => score += 8,
-            'q' | 'z' => score += 10,
-            _ => println!("missed a case"),
-        }
-    }
-    return score;
-}
-
+//bug, panic if there is no matching words i.e. rubbish tile set
+//fix it
+//
+//
 fn main() {
-    let set = random_ascii();
-    //let set = "decimal"; //for testing purposes
-    println!("The starting bag is {}", set);
-    let sets: Vec<char> = set.chars().collect();
+    let player_tiles = random_ascii();
 
-    //how can i work more directly with binary?
-    //can i just have arrary of bools or read u8 as bytes/bits
     let mut binary_bytes: Vec<String> = Vec::new();
     for n in 0..2_u32.pow(7) {
         //could generalise the input 7 etc
@@ -75,17 +22,13 @@ fn main() {
         binary_bits.push(word.chars().collect());
     }
 
-    //println!("{:?}", &binary_bits);
-    //assert_eq!(sets, ['a', 'b', 'c']);
-    //println!("{:?}", &set);
-
     let mut subsets: Vec<String> = Vec::new();
 
     let mut buff = Vec::new();
     for byte in binary_bits.iter() {
         for (idx, bit) in byte.iter().enumerate() {
             if *bit == '1' {
-                buff.push(sets[idx]);
+                buff.push(player_tiles[idx]);
             }
         }
         if !buff.is_empty() {
@@ -98,7 +41,6 @@ fn main() {
 
     let filename = "data";
     let lines = read_file(filename).unwrap();
-    //    println!("{:?}", lines);
 
     let mut dictionary: HashMap<String, String> = HashMap::new();
 
@@ -132,4 +74,46 @@ fn main() {
         answer.pop().unwrap(),
         answer.pop().unwrap()
     );
+}
+
+fn read_file(filename: &str) -> Result<Vec<String>, std::io::Error> {
+    let file = File::open(filename)?;
+    let reader = BufReader::new(file);
+    reader.lines().collect()
+}
+
+fn random_ascii() -> Vec<char> {
+    let mut bag = Vec::new();
+    const ASCIISET: &[u8] =
+        b"aaaaaaaaaiiiiiiiiioooooooonnnnnnrrrrrrttttttllllssssuuuuddddgggbbccmmppffhhvvwwyykjxqz";
+    for _ in 1..8 {
+        let idx = rand::thread_rng().gen_range(0..ASCIISET.len());
+        bag.push(ASCIISET[idx] as char)
+    }
+    //simply return bag here or placeholder "decimal".to_string()
+    //return "decimal".to_string();
+    bag.sort_by(|a, b| a.cmp(b));
+    println!("The bag is {:?}", bag);
+    //return vec!['l', 'r', 'r', 't', 'v', 'y', 'y'];
+    //above should result in panic due to bug handling no word matches found
+    //fix bug
+    return bag;
+}
+
+fn score_word(word: String) -> usize {
+    let mut score: usize = 0;
+
+    for letter in word.chars() {
+        match letter {
+            'e' | 'a' | 'i' | 'o' | 'n' | 'r' | 't' | 'l' | 's' | 'u' => score += 1,
+            'd' | 'g' => score += 2,
+            'b' | 'c' | 'm' | 'p' => score += 3,
+            'f' | 'h' | 'v' | 'w' | 'y' => score += 4,
+            'k' => score += 5,
+            'j' | 'x' => score += 8,
+            'q' | 'z' => score += 10,
+            _ => println!("missed a case"),
+        }
+    }
+    return score;
 }
