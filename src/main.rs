@@ -63,50 +63,69 @@ fn score_word(word: String) -> usize {
 
 fn produce_tile_subsets(player_tiles: Vec<char>, number_tiles: u8) -> Vec<String> {
     let mut subsets: Vec<String> = Vec::new();
-    let mut binary_bytes: Vec<String> = Vec::new();
-    for n in 0..2_u8.pow(number_tiles.into()) {
-        binary_bytes.push(format!("{n:07b}"));
-    }
 
-    let mut binary_bits: Vec<Vec<char>> = Vec::new();
-
-    for word in binary_bytes.iter() {
-        binary_bits.push(word.chars().collect());
-    }
-
-    let mut buff = Vec::new();
-    for byte in binary_bits.iter() {
-        for (idx, bit) in byte.iter().enumerate() {
-            if *bit == '1' {
-                buff.push(player_tiles[idx]);
+    // Generate all possible subsets using bitwise operations
+    for n in 0..1 << number_tiles {
+        let mut subset = String::new();
+        for (idx, tile) in player_tiles.iter().enumerate() {
+            if n & (1 << idx) != 0 {
+                subset.push(*tile);
             }
         }
-        if !buff.is_empty() {
-            buff.sort_by(|a, b| a.cmp(b));
-            let buff: &String = &buff.clone().into_iter().collect();
-            subsets.push(buff.to_string());
+        if !subset.is_empty() {
+            subsets.push(subset);
         }
-        buff.clear();
     }
-    return subsets;
+
+    subsets.sort(); // Sort subsets lexicographically
+    subsets
 }
+// fn produce_tile_subsets(player_tiles: Vec<char>, number_tiles: u8) -> Vec<String> {
+//     let mut subsets: Vec<String> = Vec::new();
+//     let mut binary_bytes: Vec<String> = Vec::new();
+//     for n in 0..2_u8.pow(number_tiles.into()) {
+//         binary_bytes.push(format!("{n:07b}"));
+//     }
+//
+//     let mut binary_bits: Vec<Vec<char>> = Vec::new();
+//
+//     for word in binary_bytes.iter() {
+//         binary_bits.push(word.chars().collect());
+//     }
+//
+//     let mut buff = Vec::new();
+//     for byte in binary_bits.iter() {
+//         for (idx, bit) in byte.iter().enumerate() {
+//             if *bit == '1' {
+//                 buff.push(player_tiles[idx]);
+//             }
+//         }
+//         if !buff.is_empty() {
+//             buff.sort_by(|a, b| a.cmp(b));
+//             let buff: &String = &buff.clone().into_iter().collect();
+//             subsets.push(buff.to_string());
+//         }
+//         buff.clear();
+//     }
+//     return subsets;
+// }
 
 fn tests() {
     assert_eq!(
         produce_tile_subsets(vec!['a', 'b', 'c', 'd', 'e', 'f', 'g'], 7),
         vec![
-            "g", "f", "fg", "e", "eg", "ef", "efg", "d", "dg", "df", "dfg", "de", "deg", "def",
-            "defg", "c", "cg", "cf", "cfg", "ce", "ceg", "cef", "cefg", "cd", "cdg", "cdf", "cdfg",
-            "cde", "cdeg", "cdef", "cdefg", "b", "bg", "bf", "bfg", "be", "beg", "bef", "befg",
-            "bd", "bdg", "bdf", "bdfg", "bde", "bdeg", "bdef", "bdefg", "bc", "bcg", "bcf", "bcfg",
-            "bce", "bceg", "bcef", "bcefg", "bcd", "bcdg", "bcdf", "bcdfg", "bcde", "bcdeg",
-            "bcdef", "bcdefg", "a", "ag", "af", "afg", "ae", "aeg", "aef", "aefg", "ad", "adg",
-            "adf", "adfg", "ade", "adeg", "adef", "adefg", "ac", "acg", "acf", "acfg", "ace",
-            "aceg", "acef", "acefg", "acd", "acdg", "acdf", "acdfg", "acde", "acdeg", "acdef",
-            "acdefg", "ab", "abg", "abf", "abfg", "abe", "abeg", "abef", "abefg", "abd", "abdg",
-            "abdf", "abdfg", "abde", "abdeg", "abdef", "abdefg", "abc", "abcg", "abcf", "abcfg",
-            "abce", "abceg", "abcef", "abcefg", "abcd", "abcdg", "abcdf", "abcdfg", "abcde",
-            "abcdeg", "abcdef", "abcdefg"
+            "a", "ab", "abc", "abcd", "abcde", "abcdef", "abcdefg", "abcdeg", "abcdf", "abcdfg",
+            "abcdg", "abce", "abcef", "abcefg", "abceg", "abcf", "abcfg", "abcg", "abd", "abde",
+            "abdef", "abdefg", "abdeg", "abdf", "abdfg", "abdg", "abe", "abef", "abefg", "abeg",
+            "abf", "abfg", "abg", "ac", "acd", "acde", "acdef", "acdefg", "acdeg", "acdf", "acdfg",
+            "acdg", "ace", "acef", "acefg", "aceg", "acf", "acfg", "acg", "ad", "ade", "adef",
+            "adefg", "adeg", "adf", "adfg", "adg", "ae", "aef", "aefg", "aeg", "af", "afg", "ag",
+            "b", "bc", "bcd", "bcde", "bcdef", "bcdefg", "bcdeg", "bcdf", "bcdfg", "bcdg", "bce",
+            "bcef", "bcefg", "bceg", "bcf", "bcfg", "bcg", "bd", "bde", "bdef", "bdefg", "bdeg",
+            "bdf", "bdfg", "bdg", "be", "bef", "befg", "beg", "bf", "bfg", "bg", "c", "cd", "cde",
+            "cdef", "cdefg", "cdeg", "cdf", "cdfg", "cdg", "ce", "cef", "cefg", "ceg", "cf", "cfg",
+            "cg", "d", "de", "def", "defg", "deg", "df", "dfg", "dg", "e", "ef", "efg", "eg", "f",
+            "fg", "g"
         ]
     );
 }
