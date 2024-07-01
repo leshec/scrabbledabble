@@ -3,9 +3,21 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
+//tests
+//change it so the number of tiles is specified in the make_a_set_of tiles bit
+//then remove number tiles for the subsets and instead determine it
+//any value or performance in using structs e.g. tiles, subsets, results etc
+//proper error handling instead of unwrap
+//can I make it more idiomatic or performant
+//can I turn into into a webapp? perhaps trying actix and htmx
+//can I extend it eg remove and replace a letter
+
 fn main() {
+    //make above changes here relating to number/length of tiles
     let player_tiles = make_a_set_of_seven_random_tiles();
-    let subsets = produce_tile_subsets(player_tiles, 7);
+    println!("The player tiles are {:?}", player_tiles);
+    let number_tiles = player_tiles.len().try_into().unwrap();
+    let subsets = produce_tile_subsets(player_tiles, number_tiles);
     //do this properly
     tests();
 
@@ -25,12 +37,6 @@ fn main() {
     get_answers(results_list);
 }
 
-fn read_file(filename: &str) -> Result<Vec<String>, std::io::Error> {
-    let file = File::open(filename)?;
-    let reader = BufReader::new(file);
-    reader.lines().collect()
-}
-
 fn make_a_set_of_seven_random_tiles() -> Vec<char> {
     let mut bag = Vec::new();
     const ASCIISET: &[u8] =
@@ -40,7 +46,6 @@ fn make_a_set_of_seven_random_tiles() -> Vec<char> {
         bag.push(ASCIISET[idx] as char)
     }
     bag.sort_by(|a, b| a.cmp(b));
-    println!("The bag is {:?}", bag);
     return bag;
 }
 
@@ -128,6 +133,12 @@ fn tests() {
             "fg", "g"
         ]
     );
+}
+
+fn read_file(filename: &str) -> Result<Vec<String>, std::io::Error> {
+    let file = File::open(filename)?;
+    let reader = BufReader::new(file);
+    reader.lines().collect()
 }
 
 fn make_dictionary(lines: Vec<String>) -> HashMap<String, String> {
