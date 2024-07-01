@@ -9,12 +9,13 @@ fn main() {
     //do this properly
     tests();
 
-    //create the dictionary
     let filename = "data";
     let lines = read_file(filename).unwrap();
 
     let dictionary = make_dictionary(lines);
     let results_list: Vec<String> = make_results_list(dictionary, subsets);
+
+    println!("{:?}", results_list.clone());
     let mut final_results_list = results_list.iter();
 
     while let Some(result) = final_results_list.next() {
@@ -64,7 +65,6 @@ fn score_word(word: String) -> usize {
 fn produce_tile_subsets(player_tiles: Vec<char>, number_tiles: u8) -> Vec<String> {
     let mut subsets: Vec<String> = Vec::new();
 
-    // Generate all possible subsets using bitwise operations
     for n in 0..1 << number_tiles {
         let mut subset = String::new();
         for (idx, tile) in player_tiles.iter().enumerate() {
@@ -77,7 +77,7 @@ fn produce_tile_subsets(player_tiles: Vec<char>, number_tiles: u8) -> Vec<String
         }
     }
 
-    subsets.sort(); // Sort subsets lexicographically
+    subsets.sort();
     subsets
 }
 // fn produce_tile_subsets(player_tiles: Vec<char>, number_tiles: u8) -> Vec<String> {
